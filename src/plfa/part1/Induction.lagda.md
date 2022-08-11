@@ -868,7 +868,17 @@ just apply the previous results which show addition
 is associative and commutative.
 
 ```
--- Your code goes here
++-swap : ∀ (m n p : ℕ) → m + (n + p) ≡ n + (m + p)
++-swap m n p =
+  begin
+    m + (n + p)
+  ≡⟨ sym (+-assoc m n p) ⟩
+    (m + n) + p
+  ≡⟨ cong (_+ p) (+-comm m n) ⟩
+    (n + m) + p
+  ≡⟨ +-assoc n m p ⟩
+    n + (m + p)
+  ∎    
 ```
 
 
@@ -881,7 +891,12 @@ Show multiplication distributes over addition, that is,
 for all naturals `m`, `n`, and `p`.
 
 ```
--- Your code goes here
+*-distrib-+ : ∀ (m n p : ℕ) → (m + n) * p ≡ m * p + n * p
+*-distrib-+ zero n p = refl
+*-distrib-+ (suc m) n p
+  rewrite *-distrib-+ m n p
+        | sym (+-assoc p (m * p) (n * p))
+  = refl
 ```
 
 
@@ -894,7 +909,12 @@ Show multiplication is associative, that is,
 for all naturals `m`, `n`, and `p`.
 
 ```
--- Your code goes here
+*-assoc : ∀ (m n p : ℕ) → (m * n) * p ≡ m * (n * p)
+*-assoc zero n p = refl
+*-assoc (suc m) n p
+  rewrite *-distrib-+ n (m * n) p
+        | *-assoc m n p
+  = refl
 ```
 
 
@@ -908,7 +928,27 @@ for all naturals `m` and `n`.  As with commutativity of addition,
 you will need to formulate and prove suitable lemmas.
 
 ```
--- Your code goes here
+*-zero : (n : ℕ) → n * zero ≡ zero
+*-zero zero    = refl
+*-zero (suc n) rewrite *-zero n = refl
+
+*-identityʳ : (n : ℕ) → n * 1 ≡ n
+*-identityʳ zero = refl
+*-identityʳ (suc n) rewrite *-identityʳ n = refl
+
+*-sucʳ : (m n : ℕ) → m * (suc n) ≡ m + (m * n)
+*-sucʳ zero n = refl
+*-sucʳ (suc m) n
+  rewrite *-sucʳ m n
+        | +-swap m n (m * n)
+  = refl
+
+*-comm : (m n : ℕ) → m * n ≡ n * m
+*-comm zero n rewrite *-zero n = refl
+*-comm (suc m) n
+  rewrite *-sucʳ n m
+        | *-comm m n
+  = refl
 ```
 
 
@@ -921,7 +961,11 @@ Show
 for all naturals `n`. Did your proof require induction?
 
 ```
--- Your code goes here
+0∸n≡0 : ∀ (n : ℕ) → zero ∸ n ≡ zero
+0∸n≡0 zero = refl
+0∸n≡0 (suc n) = refl
+
+-- Did not require induction.
 ```
 
 
@@ -935,6 +979,11 @@ for all naturals `m`, `n`, and `p`.
 
 ```
 -- Your code goes here
+∸-+-assoc : ∀ (m n p : ℕ) → m ∸ n ∸ p ≡ m ∸ (n + p)
+∸-+-assoc m n zero rewrite +-identityʳ n = refl
+∸-+-assoc m zero (suc p) = refl
+∸-+-assoc zero (suc n) (suc p) = refl
+∸-+-assoc (suc m) (suc n) (suc p) rewrite ∸-+-assoc m n (suc p) = refl
 ```
 
 
@@ -950,6 +999,19 @@ for all `m`, `n`, and `p`.
 
 ```
 -- Your code goes here
+open import Data.Nat using (_^_)
+
+^-distribˡ-+-* : ∀ (m n p : ℕ) → m ^ (n + p) ≡ (m ^ n) * (m ^ p)
+^-distribˡ-+-* m zero p rewrite +-identityʳ (m ^ p) = refl
+^-distribˡ-+-* m (suc n) p rewrite ^-distribˡ-+-* m n p rewrite *-assoc m (m ^ n) (m ^ p) = refl
+
+^-distribʳ-* : ∀ (m n p : ℕ) → (m * n) ^ p ≡ (m ^ p) * (n ^ p)
+^-distribʳ-* m n zero = refl
+^-distribʳ-* m n (suc p) rewrite *-assoc m (m ^ p) (n * (n ^ p)) rewrite sym (*-assoc (m ^ p) n (n ^ p)) rewrite *-comm (m ^ p) n rewrite *-assoc n (m ^ p) (n ^ p) rewrite *-assoc m n ((m * n) ^ p) rewrite ^-distribʳ-* m n p = refl
+
+^-*-assoc : ∀ (m n p : ℕ) → (m ^ n) ^ p ≡ m ^ (n * p)
+^-*-assoc m n zero rewrite *-zero n = refl
+^-*-assoc m n (suc p) rewrite *-sucʳ n p rewrite ^-distribˡ-+-* m n (n * p) rewrite ^-*-assoc m n p = refl
 ```
 
 
@@ -975,6 +1037,37 @@ For each law: if it holds, prove; if not, give a counterexample.
 
 ```
 -- Your code goes here
+data Bin : Set where
+  ⟨⟩ : Bin
+  _O : Bin → Bin
+  _I : Bin → Bin
+
+inc : Bin → Bin
+inc ⟨⟩    = (⟨⟩ I)
+inc (b O) = (b I)
+inc (b I) = ((inc b) O)
+
+to : ℕ → Bin
+to zero    = (⟨⟩ O)
+to (suc n) = inc (to n)
+
+from : Bin → ℕ
+from ⟨⟩ = zero
+from (n O) = 2 * (from n)
+from (n I) = suc (2 * (from n))
+
+from-inc≡suc-from : ∀ (b : Bin) → from (inc b) ≡ suc (from b)
+from-inc≡suc-from ⟨⟩ = refl
+from-inc≡suc-from (b O) = refl
+from-inc≡suc-from (b I) rewrite from-inc≡suc-from b rewrite +-suc (from b) (from b + 0) = refl
+
+-- to (from b) ≢ b. counterexamples:
+-- to (from ⟨⟩) ≡ to 0 ≡ (⟨⟩ O) ≢ ⟨⟩
+-- to (from ⟨⟩ O I) ≡ to 1 ≡ (⟨⟩ I) ≢ (⟨⟩ O I)
+
+from-to-n≡n : ∀ (n : ℕ) → from (to n) ≡ n
+from-to-n≡n zero = refl
+from-to-n≡n (suc n) rewrite from-inc≡suc-from (to n) rewrite from-to-n≡n n = refl
 ```
 
 

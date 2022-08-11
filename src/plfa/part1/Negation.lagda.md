@@ -20,7 +20,7 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 open import Data.Nat using (ℕ; zero; suc)
 open import Data.Empty using (⊥; ⊥-elim)
 open import Data.Sum using (_⊎_; inj₁; inj₂)
-open import Data.Product using (_×_)
+open import Data.Product using (_×_; _,_)
 open import plfa.part1.Isomorphism using (_≃_; extensionality)
 ```
 
@@ -193,7 +193,9 @@ Using negation, show that
 is irreflexive, that is, `n < n` holds for no `n`.
 
 ```
--- Your code goes here
+open import Data.Nat using (_<_)
+<-irreflexive : {n : ℕ} → ¬ n < n
+<-irreflexive (Data.Nat.s≤s n<n) = <-irreflexive n<n
 ```
 
 
@@ -211,7 +213,24 @@ Here "exactly one" means that not only one of the three must hold,
 but that when one holds the negation of the other two must also hold.
 
 ```
--- Your code goes here
+open import Data.Nat using (_>_)
+<→≢ : {m n : ℕ} → m < n → m ≢ n
+<→≢ m<n refl = <-irreflexive m<n
+
+>→≢ : {m n : ℕ} → m > n → m ≢ n
+>→≢ (Data.Nat.s≤s m>n) refl = >→≢ m>n refl
+
+>→≮ : {m n : ℕ} → m > n → ¬ m < n
+>→≮ (Data.Nat.s≤s m>n) (Data.Nat.s≤s m<n) = >→≮ m>n m<n
+
+<→≯ : {m n : ℕ} → m < n → ¬ m > n
+<→≯ m<n m>n = >→≮ m>n m<n
+
+≡→≮ : {m n : ℕ} → m ≡ n → ¬ m < n
+≡→≮ m≡n m<n = <→≢ m<n m≡n
+
+≡→≯ : {m n : ℕ} → m ≡ n → ¬ m > n
+≡→≯ m≡n m>n = >→≢ m>n m≡n
 ```
 
 #### Exercise `⊎-dual-×` (recommended)
@@ -224,7 +243,12 @@ version of De Morgan's Law.
 This result is an easy consequence of something we've proved previously.
 
 ```
--- Your code goes here
+⊎-dual-× : {A B : Set} → ¬ (A ⊎ B) ≃ (¬ A) × (¬ B)
+_≃_.to ⊎-dual-× p = (λ a → p (inj₁ a)) , (λ b → p (inj₂ b))
+_≃_.from ⊎-dual-× (¬a , ¬b) (inj₁ a) = ¬a a
+_≃_.from ⊎-dual-× (¬a , ¬b) (inj₂ b) = ¬b b
+_≃_.from∘to ⊎-dual-× _ = assimilation _ _
+_≃_.to∘from ⊎-dual-× (¬a , ¬b) = refl
 ```
 
 
@@ -234,6 +258,10 @@ Do we also have the following?
 
 If so, prove; if not, can you give a relation weaker than
 isomorphism that relates the two sides?
+
+We can't get (¬ A) ⊎ (¬ B) → ¬ (A × B). But we could show
+    (¬ A) ⊎ (¬ B) ≲ ¬ (A x B)
+.
 
 
 ## Intuitive and Classical logic
@@ -282,10 +310,8 @@ _Communications of the ACM_, December 2015.)
 ## Excluded middle is irrefutable
 
 The law of the excluded middle can be formulated as follows:
-```
-postulate
   em : ∀ {A : Set} → A ⊎ ¬ A
-```
+
 As we noted, the law of the excluded middle does not hold in
 intuitionistic logic.  However, we can show that it is _irrefutable_,
 meaning that the negation of its negation is provable (and hence that
@@ -382,6 +408,28 @@ Show that each of these implies all the others.
 
 ```
 -- Your code goes here
+record classical (A B : Set) : Set where
+  field
+    em : A ⊎ ¬ A
+    dne : ¬ ¬ A → A
+    pierce : ((A → B) → A) → A
+    iad : (A → B) → ¬ A ⊎ B
+    demorgan : ¬ (¬ A × ¬ B) → A ⊎ B
+
+classical-em : {A B : Set} → A ⊎ ¬ A → classical A B
+classical.em (classical-em em) = em
+classical.dne (classical-em em) ¬¬A with em
+... | inj₁ a = a
+... | inj₂ ¬A = ⊥-elim (¬¬A ¬A)
+classical.pierce (classical-em em) f with em
+... | inj₁ a = a
+... | inj₂ ¬A = f (λ a → ⊥-elim (¬A a))
+classical.iad (classical-em em) f with em
+... | inj₁ a = inj₂ (f a)
+... | inj₂ ¬A = inj₁ ¬A
+classical.demorgan (classical-em em) p with em
+... | inj₁ a = inj₁ a
+... | inj₂ ¬A = {!!}
 ```
 
 

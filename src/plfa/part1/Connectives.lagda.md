@@ -241,7 +241,12 @@ Show that `A ⇔ B` as defined [earlier](/Isomorphism/#iff)
 is isomorphic to `(A → B) × (B → A)`.
 
 ```
--- Your code goes here
+open import plfa.part1.Isomorphism using (_⇔_)
+⇔≃× : {A B : Set} → A ⇔ B ≃ (A → B) × (B → A)
+_≃_.to ⇔≃× record { to = to ; from = from } = ⟨ to , from ⟩
+_≃_.from ⇔≃× ⟨ to , from ⟩ = record { to = to ; from = from }
+_≃_.from∘to ⇔≃× record { to = to ; from = from } = refl
+_≃_.to∘from ⇔≃× ⟨ to , from ⟩ = refl
 ```
 
 
@@ -454,7 +459,15 @@ commutative and associative _up to isomorphism_.
 Show sum is commutative up to isomorphism.
 
 ```
--- Your code goes here
+⊎-comm : {A B : Set} → A ⊎ B ≃ B ⊎ A
+_≃_.to ⊎-comm (inj₁ x) = inj₂ x
+_≃_.to ⊎-comm (inj₂ x) = inj₁ x
+_≃_.from ⊎-comm (inj₁ x) = inj₂ x
+_≃_.from ⊎-comm (inj₂ x) = inj₁ x
+_≃_.from∘to ⊎-comm (inj₁ x) = refl
+_≃_.from∘to ⊎-comm (inj₂ x) = refl
+_≃_.to∘from ⊎-comm (inj₁ x) = refl
+_≃_.to∘from ⊎-comm (inj₂ x) = refl
 ```
 
 #### Exercise `⊎-assoc` (practice)
@@ -463,6 +476,19 @@ Show sum is associative up to isomorphism.
 
 ```
 -- Your code goes here
+⊎-assoc : {A B C : Set} → (A ⊎ B) ⊎ C ≃ A ⊎ (B ⊎ C)
+_≃_.to ⊎-assoc (inj₁ (inj₁ a)) = inj₁ a
+_≃_.to ⊎-assoc (inj₁ (inj₂ b)) = inj₂ (inj₁ b)
+_≃_.to ⊎-assoc (inj₂ c) = inj₂ (inj₂ c)
+_≃_.from ⊎-assoc (inj₁ a) = inj₁ (inj₁ a)
+_≃_.from ⊎-assoc (inj₂ (inj₁ b)) = inj₁ (inj₂ b)
+_≃_.from ⊎-assoc (inj₂ (inj₂ c)) = inj₂ c
+_≃_.from∘to ⊎-assoc (inj₁ (inj₁ a)) = refl
+_≃_.from∘to ⊎-assoc (inj₁ (inj₂ b)) = refl
+_≃_.from∘to ⊎-assoc (inj₂ e) = refl
+_≃_.to∘from ⊎-assoc (inj₁ a) = refl
+_≃_.to∘from ⊎-assoc (inj₂ (inj₁ b)) = refl
+_≃_.to∘from ⊎-assoc (inj₂ (inj₂ c)) = refl
 ```
 
 ## False is empty
@@ -525,7 +551,11 @@ is the identity of sums _up to isomorphism_.
 Show empty is the left identity of sums up to isomorphism.
 
 ```
--- Your code goes here
+⊥-identityˡ : {A : Set} → ⊥ ⊎ A ≃ A
+_≃_.to ⊥-identityˡ (inj₂ _) = _
+_≃_.from ⊥-identityˡ = inj₂
+_≃_.from∘to ⊥-identityˡ (inj₂ _) = refl
+_≃_.to∘from ⊥-identityˡ _ = refl
 ```
 
 #### Exercise `⊥-identityʳ` (practice)
@@ -533,7 +563,11 @@ Show empty is the left identity of sums up to isomorphism.
 Show empty is the right identity of sums up to isomorphism.
 
 ```
--- Your code goes here
+⊥-identityʳ : {A : Set} → A ⊎ ⊥ ≃ A
+_≃_.to ⊥-identityʳ (inj₁ _) = _
+_≃_.from ⊥-identityʳ = inj₁
+_≃_.from∘to ⊥-identityʳ (inj₁ _) = refl
+_≃_.to∘from ⊥-identityʳ _ = refl
 ```
 
 ## Implication is function {#implication}
@@ -756,29 +790,35 @@ one of these laws is "more true" than the other.
 #### Exercise `⊎-weak-×` (recommended)
 
 Show that the following property holds:
-```
-postulate
   ⊎-weak-× : ∀ {A B C : Set} → (A ⊎ B) × C → A ⊎ (B × C)
-```
+
 This is called a _weak distributive law_. Give the corresponding
 distributive law, and explain how it relates to the weak version.
 
 ```
 -- Your code goes here
+⊎-weak-× : {A B C : Set} → (A ⊎ B) × C → A ⊎ (B × C)
+⊎-weak-× ⟨ inj₁ a , c ⟩ = inj₁ a
+⊎-weak-× ⟨ inj₂ b , c ⟩ = inj₂ ⟨ b , c ⟩
+
+-- The distributive law would be (A ⊎ B) × C → (A × C) ⊎ (B × C)
+-- The weak version loses information in the left case.
 ```
 
 
 #### Exercise `⊎×-implies-×⊎` (practice)
 
 Show that a disjunct of conjuncts implies a conjunct of disjuncts:
-```
-postulate
   ⊎×-implies-×⊎ : ∀ {A B C D : Set} → (A × B) ⊎ (C × D) → (A ⊎ C) × (B ⊎ D)
-```
+
 Does the converse hold? If so, prove; if not, give a counterexample.
 
+Counterexample: ⟨ inj₁ 1 , inj₂ 2 ⟩
+
 ```
--- Your code goes here
+⊎×-implies-×⊎ : {A B C D : Set} → (A × B) ⊎ (C × D) → (A ⊎ C) × (B ⊎ D)
+⊎×-implies-×⊎ (inj₁ ⟨ a , b ⟩) = ⟨ inj₁ a , inj₁ b ⟩
+⊎×-implies-×⊎ (inj₂ ⟨ c , d ⟩) = ⟨ inj₂ c , inj₂ d ⟩
 ```
 
 
