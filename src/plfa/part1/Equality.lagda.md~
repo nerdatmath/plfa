@@ -270,8 +270,13 @@ alone would do.
 Sadly, we cannot use the definition of trans' using ≡-Reasoning as the definition
 for trans. Can you see why? (Hint: look at the definition of `_≡⟨_⟩_`)
 
+<<<<<<< HEAD
 ```agda
+-- Your code goes here
+=======
+```
 -- It's a circular definition.
+>>>>>>> dev
 ```
 
 ## Chains of equations, another example
@@ -358,7 +363,11 @@ notation for `≡-Reasoning`.  Define `≤-Reasoning` analogously, and use
 it to write out an alternative proof that addition is monotonic with
 regard to inequality.  Rewrite all of `+-monoˡ-≤`, `+-monoʳ-≤`, and `+-mono-≤`.
 
+<<<<<<< HEAD
 ```agda
+-- Your code goes here
+=======
+```
 data _≤_ : ℕ → ℕ → Set where
   z≤n : {n : ℕ} → zero ≤ n
   s≤s : {m n : ℕ} → m ≤ n → suc m ≤ suc n
@@ -421,6 +430,7 @@ open ≤-Reasoning
   ≤⟨ +-monoʳ-≤ n p q p≤q ⟩
     n + q
   ≤-∎
+>>>>>>> dev
 ```
 
 

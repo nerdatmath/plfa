@@ -436,10 +436,22 @@ open ≲-Reasoning
 #### Exercise `≃-implies-≲` (practice)
 
 Show that every isomorphism implies an embedding.
+<<<<<<< HEAD
+```agda
+postulate
+  ≃-implies-≲ : ∀ {A B : Set}
+    → A ≃ B
+      -----
+    → A ≲ B
+```
 
 ```agda
+-- Your code goes here
+=======
+```
 ≃-implies-≲ : {A B : Set} → A ≃ B → A ≲ B
 ≃-implies-≲ A≃B = record { _≃_ A≃B }
+>>>>>>> dev
 ```
 
 #### Exercise `_⇔_` (practice) {#iff}
@@ -453,7 +465,11 @@ record _⇔_ (A B : Set) : Set where
 ```
 Show that equivalence is reflexive, symmetric, and transitive.
 
+<<<<<<< HEAD
 ```agda
+-- Your code goes here
+=======
+```
 ⇔-refl : {A : Set} → A ⇔ A
 ⇔-refl = record { to = id; from = id }
   where
@@ -470,6 +486,7 @@ Show that equivalence is reflexive, symmetric, and transitive.
   record {to = A→B; from = B→A}
   record {to = B→C; from = C→B} = 
   record {to = B→C ∘ A→B; from = B→A ∘ C→B}
+>>>>>>> dev
 ```
 
 #### Exercise `Bin-embedding` (stretch) {#Bin-embedding}
@@ -488,7 +505,11 @@ which satisfy the following property:
     from (to n) ≡ n
 
 Using the above, establish that there is an embedding of `ℕ` into `Bin`.
+<<<<<<< HEAD
 ```agda
+-- Your code goes here
+=======
+```
 open import plfa.share.Bin as Bin using (Bin)
 
 ℕ≲Bin : ℕ ≲ Bin
@@ -504,6 +525,7 @@ open import plfa.share.Bin as Bin using (Bin)
     from∘to-ℕ-Bin : (n : ℕ) → Bin.from (Bin.to n) ≡ n
     from∘to-ℕ-Bin zero = refl
     from∘to-ℕ-Bin (suc n) rewrite from∘inc≡suc∘from (Bin.to n) | from∘to-ℕ-Bin n = refl 
+>>>>>>> dev
 ```
 
 Why do `to` and `from` not form an isomorphism?

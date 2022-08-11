@@ -189,10 +189,15 @@ Using negation, show that
 [strict inequality](/Relations/#strict-inequality)
 is irreflexive, that is, `n < n` holds for no `n`.
 
+<<<<<<< HEAD
 ```agda
+-- Your code goes here
+=======
+```
 open import Data.Nat using (_<_)
 <-irreflexive : {n : ℕ} → ¬ n < n
 <-irreflexive (Data.Nat.s≤s n<n) = <-irreflexive n<n
+>>>>>>> dev
 ```
 
 
@@ -209,7 +214,11 @@ that is, for any naturals `m` and `n` exactly one of the following holds:
 Here "exactly one" means that not only one of the three must hold,
 but that when one holds the negation of the other two must also hold.
 
+<<<<<<< HEAD
 ```agda
+-- Your code goes here
+=======
+```
 open import Data.Nat using (_>_)
 <→≢ : {m n : ℕ} → m < n → m ≢ n
 <→≢ m<n refl = <-irreflexive m<n
@@ -228,6 +237,7 @@ open import Data.Nat using (_>_)
 
 ≡→≯ : {m n : ℕ} → m ≡ n → ¬ m > n
 ≡→≯ m≡n m>n = >→≢ m>n m≡n
+>>>>>>> dev
 ```
 
 #### Exercise `⊎-dual-×` (recommended)
@@ -239,13 +249,18 @@ version of De Morgan's Law.
 
 This result is an easy consequence of something we've proved previously.
 
+<<<<<<< HEAD
 ```agda
+-- Your code goes here
+=======
+```
 ⊎-dual-× : {A B : Set} → ¬ (A ⊎ B) ≃ (¬ A) × (¬ B)
 _≃_.to ⊎-dual-× p = (λ a → p (inj₁ a)) , (λ b → p (inj₂ b))
 _≃_.from ⊎-dual-× (¬a , ¬b) (inj₁ a) = ¬a a
 _≃_.from ⊎-dual-× (¬a , ¬b) (inj₂ b) = ¬b b
 _≃_.from∘to ⊎-dual-× _ = assimilation _ _
 _≃_.to∘from ⊎-dual-× (¬a , ¬b) = refl
+>>>>>>> dev
 ```
 
 
@@ -307,6 +322,11 @@ _Communications of the ACM_, December 2015.)
 ## Excluded middle is irrefutable
 
 The law of the excluded middle can be formulated as follows:
+<<<<<<< HEAD
+```agda
+postulate
+=======
+>>>>>>> dev
   em : ∀ {A : Set} → A ⊎ ¬ A
 
 As we noted, the law of the excluded middle does not hold in

@@ -873,7 +873,11 @@ for all naturals `m`, `n`, and `p`. No induction is needed,
 just apply the previous results which show addition
 is associative and commutative.
 
+<<<<<<< HEAD
 ```agda
+-- Your code goes here
+=======
+```
 +-swap : ∀ (m n p : ℕ) → m + (n + p) ≡ n + (m + p)
 +-swap m n p =
   begin
@@ -885,6 +889,7 @@ is associative and commutative.
   ≡⟨ +-assoc n m p ⟩
     n + (m + p)
   ∎    
+>>>>>>> dev
 ```
 
 
@@ -896,13 +901,18 @@ Show multiplication distributes over addition, that is,
 
 for all naturals `m`, `n`, and `p`.
 
+<<<<<<< HEAD
 ```agda
+-- Your code goes here
+=======
+```
 *-distrib-+ : ∀ (m n p : ℕ) → (m + n) * p ≡ m * p + n * p
 *-distrib-+ zero n p = refl
 *-distrib-+ (suc m) n p
   rewrite *-distrib-+ m n p
         | sym (+-assoc p (m * p) (n * p))
   = refl
+>>>>>>> dev
 ```
 
 
@@ -914,13 +924,18 @@ Show multiplication is associative, that is,
 
 for all naturals `m`, `n`, and `p`.
 
+<<<<<<< HEAD
 ```agda
+-- Your code goes here
+=======
+```
 *-assoc : ∀ (m n p : ℕ) → (m * n) * p ≡ m * (n * p)
 *-assoc zero n p = refl
 *-assoc (suc m) n p
   rewrite *-distrib-+ n (m * n) p
         | *-assoc m n p
   = refl
+>>>>>>> dev
 ```
 
 
@@ -933,7 +948,11 @@ Show multiplication is commutative, that is,
 for all naturals `m` and `n`.  As with commutativity of addition,
 you will need to formulate and prove suitable lemmas.
 
+<<<<<<< HEAD
 ```agda
+-- Your code goes here
+=======
+```
 *-zero : (n : ℕ) → n * zero ≡ zero
 *-zero zero    = refl
 *-zero (suc n) rewrite *-zero n = refl
@@ -955,6 +974,7 @@ you will need to formulate and prove suitable lemmas.
   rewrite *-sucʳ n m
         | *-comm m n
   = refl
+>>>>>>> dev
 ```
 
 
@@ -966,12 +986,17 @@ Show
 
 for all naturals `n`. Did your proof require induction?
 
+<<<<<<< HEAD
 ```agda
+-- Your code goes here
+=======
+```
 0∸n≡0 : ∀ (n : ℕ) → zero ∸ n ≡ zero
 0∸n≡0 zero = refl
 0∸n≡0 (suc n) = refl
 
 -- Did not require induction.
+>>>>>>> dev
 ```
 
 

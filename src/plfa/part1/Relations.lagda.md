@@ -363,6 +363,9 @@ argument is `s≤s`.  Why is it ok to omit them?
 
 ```agda
 -- Your code goes here
+
+-- If we have z≤n for either argument, then one of m or n must be zero.
+-- That makes it impossible to have s≤s for either argument.
 ```
 
 
@@ -553,6 +556,14 @@ Show that multiplication is monotonic with regard to inequality.
 
 ```agda
 -- Your code goes here
+open Data.Nat using (_*_)
+
++-mono-≤' : {m n p q : ℕ} → m ≤ n → p ≤ q → m + p ≤ n + q
++-mono-≤' m≤n p≤q = +-mono-≤ _ _ _ _ m≤n p≤q
+
+*-mono-≤' : {m n p q : ℕ} → m ≤ n → p ≤ q → m * p ≤ n * q
+*-mono-≤' z≤n p≤q = z≤n
+*-mono-≤' (s≤s m≤n) p≤q = +-mono-≤' p≤q (*-mono-≤' m≤n p≤q)
 ```
 
 
@@ -601,6 +612,9 @@ exercise exploits the relation between < and ≤.)
 
 ```agda
 -- Your code goes here
+<-trans : ∀ {m n p : ℕ} → m < n → n < p → m < p
+<-trans z<s (s<s n<p) = z<s
+<-trans (s<s m<n) (s<s n<p) = s<s (<-trans m<n n<p)
 ```
 
 #### Exercise `trichotomy` (practice) {#trichotomy}
@@ -619,6 +633,24 @@ similar to that used for totality.
 
 ```agda
 -- Your code goes here
+infix 4 _>_
+data _>_ : ℕ → ℕ → Set where
+  s>z : {n : ℕ} → suc n > zero
+  s>s : {m n : ℕ} → m > n → suc m > suc n
+
+data Trichotomy (m n : ℕ) : Set where
+  lt : m < n → Trichotomy m n
+  eq : m ≡ n → Trichotomy m n
+  gt : m > n → Trichotomy m n
+
+trichotomy : ∀ (m n : ℕ) → Trichotomy m n
+trichotomy zero zero = eq refl
+trichotomy zero (suc n) = lt z<s
+trichotomy (suc m) zero = gt s>z
+trichotomy (suc m) (suc n) with trichotomy m n
+...                        | eq m≡n = eq (cong suc m≡n)
+...                        | lt m<n = lt (s<s m<n)
+...                        | gt m>n = gt (s>s m>n)
 ```
 
 #### Exercise `+-mono-<` (practice) {#plus-mono-less}
@@ -628,6 +660,13 @@ As with inequality, some additional definitions may be required.
 
 ```agda
 -- Your code goes here
++-monoʳ-< : ∀ (m n p : ℕ) → n < p → m + n < m + p
++-monoʳ-< zero n p n<p = n<p
++-monoʳ-< (suc m) n p n<p = s<s (+-monoʳ-< m n p n<p)
++-monoˡ-< : ∀ (m n p : ℕ) → m < n → m + p < n + p
++-monoˡ-< m n p m<n rewrite +-comm m p | +-comm n p = +-monoʳ-< p m n m<n
++-mono-< : ∀ (m n p q : ℕ) → m < n → p < q → m + p < n + q
++-mono-< m n p q m<n p<q = <-trans (+-monoʳ-< m p q p<q) (+-monoˡ-< m n q m<n)
 ```
 
 #### Exercise `≤-iff-<` (recommended) {#leq-iff-less}
@@ -636,6 +675,13 @@ Show that `suc m ≤ n` implies `m < n`, and conversely.
 
 ```agda
 -- Your code goes here
+<-if-≤ : {m n : ℕ} → suc m ≤ n → m < n
+<-if-≤ (s≤s z≤n) = z<s
+<-if-≤ (s≤s (s≤s sm≤n)) = s<s (<-if-≤ (s≤s sm≤n))
+
+≤-if-< : {m n : ℕ} → m < n → suc m ≤ n
+≤-if-< z<s = s≤s z≤n
+≤-if-< (s<s m<n) = s≤s (≤-if-< m<n)
 ```
 
 #### Exercise `<-trans-revisited` (practice) {#less-trans-revisited}
@@ -646,6 +692,11 @@ the fact that inequality is transitive.
 
 ```agda
 -- Your code goes here
+n≤sn : ∀ (n : ℕ) → n ≤ suc n
+n≤sn zero = z≤n
+n≤sn (suc n) = s≤s (n≤sn n)
+<-trans′ : ∀ {m n p : ℕ} → m < n → n < p → m < p
+<-trans′ m<n n<p = <-if-≤ (≤-trans (≤-if-< m<n) (≤-trans (n≤sn _) (≤-if-< n<p)))
 ```
 
 
@@ -753,6 +804,11 @@ Show that the sum of two odd numbers is even.
 
 ```agda
 -- Your code goes here
+e+o≡o : ∀ {m n : ℕ} → even m → odd n → odd (m + n)
+o+o≡e : ∀ {m n : ℕ} → odd m → odd n → even (m + n)
+e+o≡o zero on = on
+e+o≡o (suc om) on = suc (o+o≡e om on)
+o+o≡e (suc em) on = suc (e+o≡o em on)
 ```
 
 #### Exercise `Bin-predicates` (stretch) {#Bin-predicates}
@@ -806,6 +862,70 @@ if `One b` then `1` is less or equal to the result of `from b`.)
 
 ```agda
 -- Your code goes here
+data Bin : Set where
+  ⟨⟩ : Bin
+  _O : Bin → Bin
+  _I : Bin → Bin
+
+inc : Bin → Bin
+inc ⟨⟩    = (⟨⟩ I)
+inc (b O) = (b I)
+inc (b I) = ((inc b) O)
+
+to : ℕ → Bin
+to zero    = (⟨⟩ O)
+to (suc n) = inc (to n)
+
+double : ℕ → ℕ
+double zero = zero
+double (suc n) = suc (suc (double n))
+
+from : Bin → ℕ
+from ⟨⟩ = zero
+from (n O) = double (from n)
+from (n I) = suc (double (from n))
+
+data One : Bin → Set where
+  one : One (⟨⟩ I)
+  _O : {b : Bin} → One b → One (b O)
+  _I : {b : Bin} → One b → One (b I)
+
+data Can : Bin → Set where
+  zero        : Can (⟨⟩ O)
+  leading-one : {b : Bin} → One b → Can b
+
+from∘inc≡suc∘from : (b : Bin) → from (inc b) ≡ suc (from b)
+from∘inc≡suc∘from ⟨⟩ = refl
+from∘inc≡suc∘from (b O) = refl
+from∘inc≡suc∘from (b I) rewrite from∘inc≡suc∘from b = refl
+
+from∘to≡id : (n : ℕ) → from (to n) ≡ n
+from∘to≡id zero = refl
+from∘to≡id (suc n) rewrite from∘inc≡suc∘from (to n) = cong suc (from∘to≡id n)
+
+to∘double≡O∘to : (n : ℕ) → 0 < n → to (double n) ≡ (to n) O
+to∘double≡O∘to (suc zero) z<s = refl
+to∘double≡O∘to (suc (suc n)) z<s rewrite to∘double≡O∘to (suc n) z<s = refl
+
+0<One : {b : Bin} → (One b) → 0 < (from b)
+0<One one = z<s
+0<One (o O) with 0<One o
+...            | 0<o     = helper 0<o where
+    helper : {n : ℕ} → 0 < n → 0 < double n
+    helper z<s = z<s
+0<One (o I) = z<s
+
+to∘from≡id : {b : Bin} → Can b → to (from b) ≡ b
+to∘from≡id zero = refl
+to∘from≡id (leading-one one) = refl
+to∘from≡id (leading-one {b O} (o O))
+  rewrite to∘double≡O∘to (from b) (0<One o)
+        | to∘from≡id (leading-one o)
+    = refl
+to∘from≡id (leading-one {b I} (o I))
+  rewrite to∘double≡O∘to (from b) (0<One o)
+        | to∘from≡id (leading-one o)
+    = refl
 ```
 
 ## Standard library
